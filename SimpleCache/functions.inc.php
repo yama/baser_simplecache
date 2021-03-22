@@ -10,8 +10,11 @@ function cache_filename() {
 function save_cache() {
 	if(!empty($_SESSION['Auth'])) {
 		if(!empty($_POST)) {
-			array_map('unlink', glob(cache_dir() . '*.html'));
+			array_map('unlink', glob(cache_dir() . '*.*'));
 		}
+		return;
+	}
+	if (Configure::read('debug') > 0) {
 		return;
 	}
 	if(strpos($_SERVER['REQUEST_URI'], '.js') !== false) {
@@ -20,6 +23,10 @@ function save_cache() {
 	}
 
 	$response = ob_get_contents();
+	if(strpos($response, '<') === false) {
+		file_put_contents(cache_dir().'log.txt', $_SERVER['REQUEST_URI']."\n", FILE_APPEND);
+		return;
+	}
 	if(strpos($response, 'data[_Token][key]') !== false) {
 		return;
 	}
