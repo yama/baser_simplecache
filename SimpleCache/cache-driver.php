@@ -1,8 +1,15 @@
 <?php
+$base_memory = memory_get_usage();
+include_once __DIR__ . '/functions.inc.php';
 
 define('SimpleCacheInstalled', true);
-include 'basics.php';
 
-if(!is_dir(cache_path())) {
-	mkdir(cache_path());
+
+if(is_file(cache_dir() . cache_filename())) {
+	readfile(cache_dir() . cache_filename());
+	exit;
 }
+
+register_shutdown_function('save_cache');
+ob_start();
+
