@@ -7,6 +7,13 @@ function cache_filename() {
 	return md5($_SERVER['REQUEST_URI']).'.html';
 }
 
+function is_logged_in() {
+	if(!isset($_COOKIE['BASER_LOGGED_IN'])) {
+		return false;
+	}
+	return true;
+}
+
 function save_cache() {
 	if(!empty($_SESSION['Auth'])) {
 		if(!empty($_POST)) {
@@ -14,6 +21,7 @@ function save_cache() {
 		}
 		return;
 	}
+
 	if (Configure::read('debug') > 0) {
 		return;
 	}
@@ -37,13 +45,12 @@ function save_cache() {
 }
 
 function mod_indexphp() {
-	define('SimpleCacheInstalled', true);
 	return file_put_contents(
 		WWW_ROOT . 'index.php',
 		preg_replace(
 			'@^<\?php@',
 			sprintf(
-				"<?php\ninclude '%s/cache-driver.php';",
+				"<?php\ninclude_once '%s/cache-driver.php';",
 				str_replace(
 					'\\',
 					'/',

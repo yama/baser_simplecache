@@ -4,8 +4,7 @@ include_once __DIR__ . '/functions.inc.php';
 
 define('SimpleCacheInstalled', true);
 
-
-if(is_file(cache_dir() . cache_filename())) {
+if(!is_logged_in() && is_file(cache_dir() . cache_filename())) {
 	readfile(cache_dir() . cache_filename());
 	exit;
 }
