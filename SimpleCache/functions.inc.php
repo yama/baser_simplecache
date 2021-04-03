@@ -4,7 +4,7 @@ function cache_dir() {
 }
 
 function cache_filename() {
-	return md5($_SERVER['REQUEST_URI']).'.html';
+	return md5($_SERVER['REQUEST_URI']).'.txt';
 }
 
 function is_logged_in() {
@@ -18,30 +18,16 @@ function save_cache() {
 	if(!empty($_SESSION['Auth'])) {
 		if(!empty($_POST)) {
 			array_map('unlink', glob(cache_dir() . '*.*'));
-			file_put_contents(
-				cache_dir() . 'touch.php',
-				sprintf(
-					"<?php\necho '%s';\n",
-					date('Y-m-d H:i:s')
-				)
-			);
+			touch_cache();
 		}
 		return;
 	}
 
-	if (Configure::read('debug') > 0) {
-		return;
-	}
-	if(strpos($_SERVER['REQUEST_URI'], '.js') !== false) {
-		file_put_contents(cache_dir().'log.txt', $_SERVER['REQUEST_URI'], FILE_APPEND);
+	if (!is_cacheable_action()) {
 		return;
 	}
 
 	$response = ob_get_contents();
-	if(strpos($response, '<') === false) {
-		file_put_contents(cache_dir().'log.txt', $_SERVER['REQUEST_URI']."\n", FILE_APPEND);
-		return;
-	}
 	if(strpos($response, 'data[_Token][key]') !== false) {
 		return;
 	}
@@ -49,24 +35,39 @@ function save_cache() {
 		mkdir(cache_dir());
 	}
 	file_put_contents(cache_dir() . cache_filename(), $response);
+	touch_cache();
 }
 
-function mod_indexphp() {
-	return file_put_contents(
-		WWW_ROOT . 'index.php',
-		preg_replace(
-			'@^<\?php@',
+function touch_cache() {
+	if(!is_file(cache_dir() . 'touch.php')) {
+		file_put_contents(
+			cache_dir() . 'touch.php',
 			sprintf(
-				"<?php\ninclude_once '%s/cache-driver.php';",
-				str_replace(
-					'\\',
-					'/',
-					__DIR__
-				)
-			),
-			file_get_contents(WWW_ROOT . 'index.php')
-		)
-	);
+				"<?php\necho '%s';\n",
+				date('Y-m-d H:i:s')
+			)
+		);
+}
+}
+
+function is_cacheable_action() {
+	$route = Router::parse(env('REQUEST_URI'));
+	if ($route['plugin'] === 'blog') {
+		if ($route['controller'] === 'blog') {
+			return true;
+		}
+		if ($route['action'] === 'blog_comments_scripts.js') {
+			return true;
+		}
+		return false;
+	}
+	if ($route['controller'] === 'pages') {
+		return true;
+	}
+	if ($route['controller'] === 'content_folders') {
+		return true;
+	}
+	return false;
 }
 
 if (!function_exists('str_ends_with')) {

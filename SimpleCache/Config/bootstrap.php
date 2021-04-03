@@ -23,6 +23,3 @@
  */
 
 include_once dirname(__DIR__) . '/functions.inc.php';
-if(!defined('SimpleCacheInstalled') && is_file(WWW_ROOT . 'index.php')) {
-	mod_indexphp();
-}
