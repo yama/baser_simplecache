@@ -18,6 +18,13 @@ function save_cache() {
 	if(!empty($_SESSION['Auth'])) {
 		if(!empty($_POST)) {
 			array_map('unlink', glob(cache_dir() . '*.*'));
+			file_put_contents(
+				cache_dir() . 'touch.php',
+				sprintf(
+					"<?php\necho '%s';\n",
+					date('Y-m-d H:i:s')
+				)
+			);
 		}
 		return;
 	}
