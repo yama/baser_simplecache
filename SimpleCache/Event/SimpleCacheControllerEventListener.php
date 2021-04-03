@@ -20,5 +20,19 @@ class SimpleCacheControllerEventListener extends BcControllerEventListener {
 				time()-3600, baseUrl()
 			);
 		}
+		if($_POST && str_ends_with(env('REQUEST_URI'), '/admin/plugins/ajax_delete/SimpleCache')) {
+			$this->uninstall();
+		}
     }
+
+	private function uninstall() {
+		file_put_contents(
+			WWW_ROOT . 'index.php',
+			preg_replace(
+				'@^.*include_once .+app/Plugin/SimpleCache/cache-driver\.php.+$\n@m',
+				'',
+				file_get_contents(WWW_ROOT . 'index.php')
+			)
+		);
+	}
 }
