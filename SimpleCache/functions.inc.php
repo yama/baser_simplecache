@@ -61,3 +61,10 @@ function mod_indexphp() {
 		)
 	);
 }
+
+if (!function_exists('str_ends_with')) {
+	function str_ends_with($haystack, $needle)
+	{
+		return $needle === '' || ($haystack !== '' && substr_compare($haystack, $needle, -\strlen($needle))===0);
+	}
+}
