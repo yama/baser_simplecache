@@ -19,6 +19,11 @@ class SimpleCacheControllerEventListener extends BcControllerEventListener {
 				$this->uninstall();
 				return;
 			}
+			if(!empty($_POST)) {
+				$this->purgeCache();
+				$this->touch_cache();
+				return;
+			}
 			if (empty($_COOKIE['BASER_LOGGED_IN'])) {
 				$this->setLoginCookie();
 			}
@@ -33,14 +38,6 @@ class SimpleCacheControllerEventListener extends BcControllerEventListener {
 	}
 
 	public function shutdown(CakeEvent $event) {
-		if(BcUtil::loginUserName()) {
-			if(!empty($_POST)) {
-				$this->purgeCache();
-				$this->touch_cache();
-			}
-			return;
-		}
-
 		$controller = $event->subject();
 		if (!$this->is_cacheable_action($controller->request)) {
 			return;
