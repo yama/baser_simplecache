@@ -1,49 +1,18 @@
 <?php
 class SimpleCacheControllerEventListener extends BcControllerEventListener {
-    public $events = [
-        'initialize'
-    ];
+	public $events = [
+		'initialize'
+	];
 
-    public function initialize(CakeEvent $event) {
+	public function initialize(CakeEvent $event) {
 		if ($this->isUninstallAction($event)) {
-			$this->unSetLoginCookie();
+			unSetLoginCookie();
 			$this->uninstall();
 		}
-
-		if (BcUtil::loginUserName()) {
-			if(!defined('SimpleCacheInstalled')) {
-				$this->modify_indexphp();
-			}
-			if(empty($_COOKIE['BASER_LOGGED_IN'])) {
-				$this->setLoginCookie();
-			}
-			return;
-		}
-
-		if(!empty($_COOKIE['BASER_LOGGED_IN'])) {
-			$this->unSetLoginCookie();
-			return;
-		}
 	}
-
-	private function setLoginCookie() {
-		setcookie(
-			'BASER_LOGGED_IN',
-			'loggedin',
-			time()+60*60*24*180,
-			baseUrl()
-		);
-	}
-
-	private function unSetLoginCookie() {
-		setcookie(
-			'BASER_LOGGED_IN',
-			'',
-			time()-3600, baseUrl()
-		);
-}
 
 	private function isUninstallAction($event) {
+		// /admin/plugins/ajax_delete/SimpleCache
 		$controller = $event->subject();
 		if ($controller->name !== 'Plugins') {
 			return false;
@@ -55,27 +24,6 @@ class SimpleCacheControllerEventListener extends BcControllerEventListener {
 			return false;
 		}
 		return true;
-	}
-
-	private function modify_indexphp() {
-		if(!is_file(WWW_ROOT . 'index.php')) {
-			return false;
-		}
-		return file_put_contents(
-			WWW_ROOT . 'index.php',
-			preg_replace(
-				'@^<\?php@',
-				sprintf(
-					"<?php\ninclude_once '%s/cache-driver.php';",
-					str_replace(
-						'\\',
-						'/',
-						dirname(__DIR__)
-					)
-				),
-				file_get_contents(WWW_ROOT . 'index.php')
-			)
-		);
 	}
 
 	private function uninstall() {

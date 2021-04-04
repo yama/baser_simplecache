@@ -23,3 +23,14 @@
  */
 
 include_once dirname(__DIR__) . '/functions.inc.php';
+App::uses('BcUtil', 'Lib');
+if (BcUtil::loginUserName()) {
+	!defined('SimpleCacheInstalled')   and modify_indexphp();
+	empty($_COOKIE['BASER_LOGGED_IN']) and setLoginCookie();
+} elseif (!empty($_COOKIE['BASER_LOGGED_IN'])) {
+	unSetLoginCookie();
+}
+
+register_shutdown_function('save_cache');
+ob_start();
+

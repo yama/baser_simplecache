@@ -1,19 +1,4 @@
 <?php
-function cache_dir() {
-	return dirname(dirname(__DIR__)).'/tmp/cache/simplecache/';
-}
-
-function cache_filename() {
-	return md5($_SERVER['REQUEST_URI']).'.txt';
-}
-
-function is_logged_in() {
-	if(!isset($_COOKIE['BASER_LOGGED_IN'])) {
-		return false;
-	}
-	return true;
-}
-
 function save_cache() {
 	if(!empty($_SESSION['Auth'])) {
 		if(!empty($_POST)) {
@@ -38,18 +23,6 @@ function save_cache() {
 	touch_cache();
 }
 
-function touch_cache() {
-	if(!is_file(cache_dir() . 'touch.php')) {
-		file_put_contents(
-			cache_dir() . 'touch.php',
-			sprintf(
-				"<?php\necho '%s';\n",
-				date('Y-m-d H:i:s')
-			)
-		);
-}
-}
-
 function is_cacheable_action() {
 	$route = Router::parse(env('REQUEST_URI'));
 	if ($route['plugin'] === 'blog') {
@@ -70,9 +43,52 @@ function is_cacheable_action() {
 	return false;
 }
 
-if (!function_exists('str_ends_with')) {
-	function str_ends_with($haystack, $needle)
-	{
-		return $needle === '' || ($haystack !== '' && substr_compare($haystack, $needle, -\strlen($needle))===0);
+function touch_cache() {
+	if(!is_file(cache_dir() . 'touch.php')) {
+		file_put_contents(
+			cache_dir() . 'touch.php',
+			sprintf(
+				"<?php\necho '%s';\n",
+				date('Y-m-d H:i:s')
+			)
+		);
 	}
+}
+
+function setLoginCookie() {
+	return setcookie(
+		'BASER_LOGGED_IN',
+		'loggedin',
+		time()+60*60*24*180,
+		baseUrl()
+	);
+}
+
+function unSetLoginCookie() {
+	return setcookie(
+		'BASER_LOGGED_IN',
+		'',
+		time()-3600, baseUrl()
+	);
+}
+
+function modify_indexphp() {
+	if(!is_file(WWW_ROOT . 'index.php')) {
+		return false;
+	}
+	return file_put_contents(
+		WWW_ROOT . 'index.php',
+		preg_replace(
+			'@^<\?php@',
+			sprintf(
+				"<?php\ninclude_once '%s/cache-driver.php';",
+				str_replace(
+					'\\',
+					'/',
+					__DIR__
+				)
+			),
+			file_get_contents(WWW_ROOT . 'index.php')
+		)
+	);
 }
