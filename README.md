@@ -24,11 +24,11 @@
 
 下記の条件に該当するページをキャッシュします。
 
-- 非ログイン時に表示されるページ
-- $_POSTが空
-- data[_Token][key]という文字列を含まないページ
-  -  PagesControllerに紐づくページ(固定ページ)
-  -  BlogControllerに紐づくページ(ブログ)
-  -  ContentFoldersControllerに紐づくページ(フォルダ)
+- 非ログイン時
+  - $_POSTが空
+    - ページ内にdata[_Token][key]という文字列を含まない
+      -  PagesControllerに紐づくページ(固定ページ)
+      -  BlogControllerに紐づくページ(ブログ)
+      -  ContentFoldersControllerに紐づくページ(フォルダ)
 
 ※詳細については SimpleCacheControllerEventListener.php を参照してください。
