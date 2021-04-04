@@ -1,7 +1,9 @@
-# baser_simplecache
+# SimpleCacheプラグイン
 
-副作用が起きる可能性が低い、シンプルなページキャッシュです。<br>
-[条件付きget機能](https://www.google.com/search?q=php+%E6%9D%A1%E4%BB%B6%E4%BB%98%E3%81%8Dget)もあります。
+## 特長
+
+- 副作用が起きる可能性が低い、シンプルなページキャッシュ
+- [条件付きget機能](https://www.google.com/search?q=php+%E6%9D%A1%E4%BB%B6%E4%BB%98%E3%81%8Dget)を設定可能。デフォルトで有効
 
 ## インストール
 
