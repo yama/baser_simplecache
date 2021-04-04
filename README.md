@@ -32,3 +32,5 @@
       -  ContentFoldersControllerに紐づくページ(フォルダ)
 
 ※詳細については SimpleCacheControllerEventListener.php を参照してください。
+
+管理画面にログイン中に何らかの更新操作を行なうとキャッシュをクリアします。ログインするだけでもクリアされます。
