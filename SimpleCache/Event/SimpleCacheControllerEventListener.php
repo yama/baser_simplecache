@@ -1,4 +1,7 @@
 <?php
+if(!function_exists('cache_dir')) {
+	include_once dirname(__DIR__) . '/preload.functions.inc.php';
+}
 class SimpleCacheControllerEventListener extends BcControllerEventListener {
 
 	public $events = [
@@ -7,10 +10,6 @@ class SimpleCacheControllerEventListener extends BcControllerEventListener {
 	];
 
 	public function initialize(CakeEvent $event) {
-		if(!function_exists('cache_dir')) {
-			include_once dirname(__DIR__) . '/preload.functions.inc.php';
-		}
-
 		if (BcUtil::loginUserName()) {
 			$controller = $event->subject();
 			if ($this->isUninstallAction($controller->request)) {
@@ -46,16 +45,23 @@ class SimpleCacheControllerEventListener extends BcControllerEventListener {
 		if(strpos($body, 'data[_Token][key]') !== false) {
 			return;
 		}
-		if(!is_dir(cache_dir())) {
-			mkdir(cache_dir());
+		if(!is_dir(sc_cache_dir())) {
+			mkdir(sc_cache_dir());
 		}
-		file_put_contents(cache_dir() . cache_filename(), $body);
+		file_put_contents(sc_cache_filepath(), $body);
+		$this->setEtag(sc_cache_filepath());
 		$this->touch_cache();
 
 	}
 
 	private function purgeCache() {
-		array_map('unlink', glob(cache_dir() . '*.*'));
+		array_map('unlink', glob(sc_cache_dir() . '*.*'));
+	}
+	private function setEtag($file_path) {
+		if (!Configure::read('SimpleCache.cget')) {
+			return;
+		}
+		header(sprintf('ETag: "%s"', md5(filemtime($file_path))));
 	}
 
 	private function isUninstallAction($request) {
@@ -102,9 +108,9 @@ class SimpleCacheControllerEventListener extends BcControllerEventListener {
 	}
 
 	private function touch_cache() {
-		if(!is_file(cache_dir() . 'touch.php')) {
+		if(!is_file(sc_cache_dir() . 'touch.php')) {
 			file_put_contents(
-				cache_dir() . 'touch.php',
+				sc_cache_dir() . 'touch.php',
 				sprintf(
 					"<?php\necho '%s';\n",
 					date('Y-m-d H:i:s', filemtime(__FILE__))

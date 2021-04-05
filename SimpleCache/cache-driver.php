@@ -4,15 +4,15 @@ include_once __DIR__ . '/preload.functions.inc.php';
 
 define('SimpleCacheInstalled', true); // index.phpのフックを確認するための目印
 
-if(is_logged_in() || !is_file(cache_dir() . cache_filename())) {
+if(sc_is_logged_in() || !is_file(sc_cache_filepath())) {
 	return;
 }
 
 include_once __DIR__ . '/Config/setting.php';
 if (!empty($config['SimpleCache']['cget'])) {
-	new CGET(filemtime(cache_dir() . cache_filename()));
+	sc_conditional_get(filemtime(sc_cache_filepath()));
 }
 
-readfile(cache_dir() . cache_filename());
+readfile(sc_cache_filepath());
 
 exit; // キャッシュを出力したらbaserCMSを立ち上げずに終了
