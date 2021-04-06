@@ -1,7 +1,4 @@
 <?php
-if(!function_exists('cache_dir')) {
-	include_once dirname(__DIR__) . '/preload.functions.inc.php';
-}
 class SimpleCacheControllerEventListener extends BcControllerEventListener {
 
 	public $events = [
@@ -18,7 +15,7 @@ class SimpleCacheControllerEventListener extends BcControllerEventListener {
 				$this->uninstall();
 				return;
 			}
-			if(!empty($_POST)) {
+			if(!empty($_POST) || $this->isClearCacheAction($controller->request)) {
 				$this->purgeCache();
 				$this->touch_cache();
 				return;
@@ -38,7 +35,7 @@ class SimpleCacheControllerEventListener extends BcControllerEventListener {
 
 	public function shutdown(CakeEvent $event) {
 		$controller = $event->subject();
-		if (!$this->is_cacheable_action($controller->request)) {
+		if (!$this->isCacheableAction($controller->request)) {
 			return;
 		}
 		$body = $controller->response->body();
@@ -57,6 +54,7 @@ class SimpleCacheControllerEventListener extends BcControllerEventListener {
 	private function purgeCache() {
 		array_map('unlink', glob(sc_cache_dir() . '*.*'));
 	}
+
 	private function setEtag($file_path) {
 		if (!Configure::read('SimpleCache.cget')) {
 			return;
@@ -88,7 +86,7 @@ class SimpleCacheControllerEventListener extends BcControllerEventListener {
 		);
 	}
 
-	private function is_cacheable_action($request) {
+	private function isCacheableAction($request) {
 		if ($request->plugin === 'blog') {
 			if ($request->controller === 'blog') {
 				return true;
@@ -105,6 +103,16 @@ class SimpleCacheControllerEventListener extends BcControllerEventListener {
 			return true;
 		}
 		return false;
+	}
+
+	private function isClearCacheAction($request) {
+		if ($request->controller !== 'site_configs') {
+			return false;
+		}
+		if ($request->action !== 'admin_del_cache') {
+			return false;
+		}
+		return true;
 	}
 
 	private function touch_cache() {
