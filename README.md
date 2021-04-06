@@ -29,6 +29,8 @@
       -  BlogControllerに紐づくページ(ブログ)
       -  ContentFoldersControllerに紐づくページ(フォルダ)
 
+キャッシュファイルは {APP_DIR}/tmp/cache/simplecache/ フォルダの中に生成します。
+
 ※詳細については SimpleCacheControllerEventListener.php を参照してください。
 
 管理画面にログイン中に何らかの更新操作($_POSTの有無で判定)を行なうとキャッシュをクリアします。ログインするだけでもクリアされます。
