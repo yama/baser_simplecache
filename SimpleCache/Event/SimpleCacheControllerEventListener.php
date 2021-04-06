@@ -34,6 +34,9 @@ class SimpleCacheControllerEventListener extends BcControllerEventListener {
 	}
 
 	public function shutdown(CakeEvent $event) {
+		if (BcUtil::loginUserName()) {
+			return;
+		}
 		$controller = $event->subject();
 		if (!$this->isCacheableAction($controller->request)) {
 			return;
