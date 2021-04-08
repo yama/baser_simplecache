@@ -1,4 +1,4 @@
 <?php
 $title = '';
-$description = 'ページキャッシュの試作';
+$description = 'ページキャッシュです。オプション設定で条件付きGETにも対応します。';
 $author = 'yamamoto';
