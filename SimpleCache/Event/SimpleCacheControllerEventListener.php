@@ -46,7 +46,10 @@ class SimpleCacheControllerEventListener extends BcControllerEventListener {
 			return;
 		}
 		if(!is_dir(sc_cache_dir())) {
-			mkdir(sc_cache_dir());
+			$mask = umask();
+			umask(000);
+			mkdir(sc_cache_dir(), 0777, true);
+			umask($mask);
 		}
 		file_put_contents(sc_cache_filepath(), $body);
 		$this->setEtag(sc_cache_filepath());
@@ -87,6 +90,8 @@ class SimpleCacheControllerEventListener extends BcControllerEventListener {
 				file_get_contents(WWW_ROOT . 'index.php')
 			)
 		);
+		$this->purgeCache();
+		rmdir(sc_cache_dir());
 	}
 
 	private function isCacheableAction($request) {
